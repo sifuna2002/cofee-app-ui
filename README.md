@@ -1,6 +1,6 @@
 # Coffee-App-React-Native
 
-![Image](demo.png)
+![Image](demo.jpg)
 
   
 
