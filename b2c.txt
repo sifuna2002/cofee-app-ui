@@ -1,0 +1,50 @@
+ return new Promise((resolve, reject) => {
+        (consumer_key = object.consumer_key),
+        (consumer_secret = object.consumer_secret),
+        (url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials');
+        auth = new Buffer.from(consumer_key + ':' + consumer_secret).toString('base64');
+        apirequest({
+                url: url,
+                headers: {
+                    Authorization: 'Basic ' + auth,
+                }
+            },
+            (error, response1, body) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    const url = 'https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest',
+                        auth = 'Bearer ' + JSON.parse(body).access_token;
+                    console.log(object);
+                    console.log(auth);
+                    apirequest({
+                            url: url,
+                            method: 'POST',
+                            headers: {
+                                Authorization: auth
+                            },
+                            json: {
+                                InitiatorName: object.initname,
+                                SecurityCredential: object.securityCredential,
+                                CommandID: 'BusinessPayment',
+                                Amount: object.amount,
+                                PartyA: object.initcode,
+                                PartyB: object.reccode,
+                                Remarks: object.transactionDesc,
+                                QueueTimeOutURL: callbackurl + '/b2c_timeout_url',
+                                ResultURL: callbackurl + `/b2c_result_url?safepayid=${object.companyid}`,
+                                Occasion: object.occasion
+                            }
+                        },
+                        function(error, res, body) {
+                            if (error) {
+                                reject({ result: 'fail', body: error });
+                            } else {
+                                resolve({ result: 'success', body: body });
+                            }
+                        }
+                    );
+                }
+            }
+        );
+    });
